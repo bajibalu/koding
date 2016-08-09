@@ -19,11 +19,19 @@ cd $REPOSITORY_PATH
 git config user.email 'sysops@koding.com'
 git config user.name 'Koding Bot'
 
-scripts/wercker/install-node-modules koding
-scripts/install-npm.sh -u
+function log() {
+  echo "$(date '+%T') $*" >> .logs/init.log
+}
+
+log BEG npm install
+npm install
+log END npm install
 
 ./configure --config dev --host $HOST:8090 --disable-segment
+
+log BEG ./run install
 ./run install
+log END ./run install
 
 export TEST_EXTRAS="--no-start-selenium --url http://$HOST:8090"
 make -C client/test build
@@ -58,5 +66,7 @@ sleep 10
 
 x11vnc -passwd secret -display :0 -N -forever &
 x11vnc -passwd secret -display :1 -N -forever &
+
+log finished
 
 exit 0
